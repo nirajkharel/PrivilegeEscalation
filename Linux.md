@@ -166,6 +166,7 @@ void_init(){
 - Further exploitation: https://sheetalpatil321.medium.com/linux-privilege-escalation-22f1118a1644
 
 **Escalation via Binary Symlinks**
+
 **Escalation via Environmen Variables**
 
 ## Escalation Path: Capabilities
