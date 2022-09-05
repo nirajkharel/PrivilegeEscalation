@@ -166,6 +166,10 @@ void_init(){
 - Further exploitation: https://sheetalpatil321.medium.com/linux-privilege-escalation-22f1118a1644
 
 **Escalation via Binary Symlinks**
+- When we have www-data user and if the ngnix is used on the server. We can perform nginx exploit to privilege the escalation.
+- Accessed as www-data then,
+  - Run linux exploit suggestor
+  - Exploit the vulnerability as the suggestor suggest.
 
 **Escalation via Environmen Variables**
 
