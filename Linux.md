@@ -159,7 +159,11 @@ void_init(){
 - Find  the files with suid bit set
   - `find / -type f -perm -04000 -ls 2>/dev/null`
   - Or, `find / -type f -a \( -perm -u+s -o -perm -g+s \) -exec ls -l {} \; 2> /dev/null`
-- Search for escalation techniques on GTFOBin
+- Strace
+  - With strace, we can find out what system calls are being made while executing the program.
+  - `strace /usr/local/bin/suid-so 2>&1 | grep -iE "open|access|no such file"`
+  - We should be able to overwrite some of the files on it.
+- Further exploitation: https://sheetalpatil321.medium.com/linux-privilege-escalation-22f1118a1644
 
 **Escalation via Binary Symlinks**
 **Escalation via Environmen Variables**
