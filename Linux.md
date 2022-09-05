@@ -171,6 +171,7 @@ void_init(){
   - Run linux exploit suggestor
   - Exploit the vulnerability as the suggestor suggest
   - For this attack to be successfull, the log directory for nginx must be writable.
+  - Open new terminal and login as root. Password is not required.
 - Resources: https://legalhackers.com/advisories/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html
 
 **Escalation via Environment Variables**
