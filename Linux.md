@@ -152,10 +152,15 @@ void_init(){
 - Navigate to GTFOBin and search for the filename/command.
 - Select SUID and exploit as per it.
 
-
-
-
 ## Escalation Path: Other SUID Escalation
+**Escalation via Shared Object Injection**
+- During execution, a program needs to load some shared objects. In this process some system calls are made. We can view the list of these system calls using a program called strace.
+- strace: Traces system calls and signals.
+- Find  the files with suid bit set
+  - `find / -type f -perm -04000 -ls 2>/dev/null`
+  - Or, `find / -type f -a \( -perm -u+s -o -perm -g+s \) -exec ls -l {} \; 2> /dev/null`
+**Escalation via Binary Symlinks**
+**Escalation via Environmen Variables**
 
 ## Escalation Path: Capabilities
 
