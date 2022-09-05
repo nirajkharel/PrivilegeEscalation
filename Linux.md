@@ -169,9 +169,11 @@ void_init(){
 - When we have www-data user and if the ngnix is used on the server. We can perform nginx exploit to privilege the escalation.
 - Accessed as www-data then,
   - Run linux exploit suggestor
-  - Exploit the vulnerability as the suggestor suggest.
+  - Exploit the vulnerability as the suggestor suggest
+  - For this attack to be successfull, the log directory for nginx must be writable.
+- Resources: https://legalhackers.com/advisories/Nginx-Exploit-Deb-Root-PrivEsc-CVE-2016-1247.html
 
-**Escalation via Environmen Variables**
+**Escalation via Environment Variables**
 
 ## Escalation Path: Capabilities
 
