@@ -159,6 +159,8 @@ void_init(){
 - Find  the files with suid bit set
   - `find / -type f -perm -04000 -ls 2>/dev/null`
   - Or, `find / -type f -a \( -perm -u+s -o -perm -g+s \) -exec ls -l {} \; 2> /dev/null`
+- Search for escalation techniques on GTFOBin
+
 **Escalation via Binary Symlinks**
 **Escalation via Environmen Variables**
 
