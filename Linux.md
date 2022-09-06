@@ -231,6 +231,9 @@ except:
 - Make it executable: `chmod +x script.py`
 - In some time, we should have had the root shell.
 
+**Exploiting Wildcards in Commands**
+- Commands can use wildcards as arguments to perform actions on more than one file at a time, also called globbing. When the command is assigned to a cronjob, contains a wildcard operator then attacker can go for wildcard injection to escalate privilege.
+
 ## Escalation Path: NFS Root Squashing
 
 ## Escalation Path: Docker
