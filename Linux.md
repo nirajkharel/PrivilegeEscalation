@@ -25,6 +25,7 @@
 
 **Network Enumeration**
 - Identify the open ports: `netstat -ano`
+- Or, `ss -tulpn`
 - Analyze the ports open in a localhost.
 
 **Password Hunting**
