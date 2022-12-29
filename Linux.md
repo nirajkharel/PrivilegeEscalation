@@ -240,3 +240,8 @@ except:
 ## Escalation Path: NFS Root Squashing
 
 ## Escalation Path: Docker
+
+## References
+- https://macrosec.tech/index.php/2021/06/08/linux-privilege-escalation-techniques-using-suid/
+- https://tryhackme.com/room/linuxprivescarena
+- https://academy.tcm-sec.com/courses/enrolled/1154399
