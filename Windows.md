@@ -190,7 +190,7 @@
 		- `exploit`
 - More on: https://steflan-security.com/windows-privilege-escalation-alwaysinstallelevated-policy/
 
-**Service Escalation: Insecure Service Permissions**
+## Service Escalation: Insecure Service Permissions
 - Use accesschk.exe to check the "user" account's permissions on the "daclsvc" service:
 	- `C:\PrivEsc\accesschk.exe /accepteula -uwcqv user daclsvc`
 - Note that the "user" account has the permission to change the service config (SERVICE_CHANGE_CONFIG).
@@ -201,7 +201,7 @@
 - Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
 	- `net start daclsvc`
 	
-**Service Escalation: Unquoted Service Paths**
+## Service Escalation: Unquoted Service Paths
 - If you have a service executable which path is not enclosed quotations and contains a space, we can escalate a privileges (only if the vulnerable service is running with SYSTEM privilege level which most of the time it is).
 - Query the "unquotedsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME) and that the BINARY_PATH_NAME is unquoted and contains spaces.
 	- `sc qc unquotedsvc`
@@ -224,7 +224,7 @@
 - More Info: https://vk9-sec.com/privilege-escalation-unquoted-service-path-windows/
 - Even More on: https://medium.com/@SumitVerma101/windows-privilege-escalation-part-1-unquoted-service-path-c7a011a8d8ae
 
-**Service Escalation: Weak Registry Permission**
+## Service Escalation: Weak Registry Permission
 - Detection
 	- Query the "regsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME).
 		- `sc qc regsvc`
